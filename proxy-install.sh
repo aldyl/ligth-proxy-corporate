@@ -2,7 +2,7 @@
 echo "Usage: Install the proxy helper scripts"
 name="Ing. Aldy Leon Garcia"
 email="aldyleongarcia@gmail.com"
-echo $name 
+echo $name
 echo $email
 
 BASE_CONF=/home/$USER/opt/corporate_proxy
@@ -23,7 +23,7 @@ read D_ADDRESS
 echo "Cntlm listen port"
 read LISTEN
 echo "Exclude from Proxy"
-echo "localhost, 127.0.0.*, 10.*, 192.168.*, *.uci.cu, 10.*.*.*"
+echo "localhost, 127.0.0.*, 10.*, 192.168.*"
 read NO_PROXY_LIST
 
 ## Proxy auto configuration settings | CNTLM_CONFIG
@@ -66,13 +66,11 @@ cat >$CNTLM_PIP <<EOF
 proxy = https://127.0.0.1:$LISTEN
 EOF
 
-
 ## Proxy auto configuration settings | CURL
 CNTLM_CURL="$BASE_CONF/.curlrc"
 cat >$CNTLM_CURL <<EOF
 proxy=https://127.0.0.1:$LISTEN
 EOF
-
 
 ## Proxy auto configuration settings | GIT
 CNTLM_GIT="$BASE_CONF/.gitconfig_proxy"
