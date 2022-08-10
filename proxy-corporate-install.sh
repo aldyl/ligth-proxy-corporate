@@ -15,7 +15,7 @@ sudo apt install -y cntlm
 echo "Username"
 read USER_CNTLM
 echo "Password"
-PASSWORD=$(cntlm -H)
+read PASSWORD
 echo "Domain"
 read DOMAIN
 echo "Domain ip:port"
@@ -34,7 +34,7 @@ Domain		$DOMAIN
 Proxy		$D_ADDRESS
 NoProxy		$NO_PROXY_LIST
 Listen		$LISTEN
-$PASSWORD
+Password    $PASSWORD
 EOF
 
 ## Proxy auto configuration settings
