@@ -12,17 +12,12 @@ mkdir -p $BASE_CONF && cd $BASE_CONF
 sudo apt install -y cntlm
 
 #Basic account information
-echo "Username"
-read USER_CNTLM
-echo "Password"
-read PASSWORD
-echo "Domain"
-read DOMAIN
-echo "Domain ip:port"
-read D_ADDRESS
-echo "Cntlm listen port"
-read LISTEN
-echo "Exclude from Proxy"
+echo "Username" && read USER_CNTLM
+echo "Password" && read PASSWORD
+echo "Domain" && read DOMAIN
+echo "Domain ip:port" && read DOMAIN_IP_PORT
+echo "Cntlm listen port" && read CNTLM_LISTEN_PORT
+echo "Exclude from Proxy" 
 echo "localhost, 127.0.0.*, 10.*, 192.168.*"
 read NO_PROXY_LIST
 
@@ -31,9 +26,9 @@ CNTLM_CONFIG="$BASE_CONF/cntlm.conf"
 cat >$CNTLM_CONFIG <<EOF
 Username	$USER_CNTLM
 Domain		$DOMAIN
-Proxy		$D_ADDRESS
+Proxy		$DOMAIN_IP_PORT
 NoProxy		$NO_PROXY_LIST
-Listen		$LISTEN
+Listen		$CNTLM_LISTEN_PORT
 Password    $PASSWORD
 EOF
 
@@ -45,7 +40,7 @@ function FindProxyForURL (url, host) {
         return 'SOCKS5 127.0.0.1:1081; PROXY 127.0.0.1:8081; DIRECT';  //psiphon
     }
     if (isResolvable('cuota.uci.cu')) {//UCI
-        return 'PROXY 127.0.0.1:$LISTEN; PROXY $D_ADDRESS; DIRECT';   //cntlm
+        return 'PROXY 127.0.0.1:$CNTLM_LISTEN_PORT; PROXY $DOMAIN_IP_PORT; DIRECT';   //cntlm
     }
     return 'DIRECT'; //no service
 }
@@ -54,22 +49,27 @@ EOF
 ## Proxy auto configuration settings | APT
 CNTLM_APT="$BASE_CONF/apt-proxy"
 cat >$CNTLM_APT <<EOF
-Acquire::http::proxy "http://127.0.0.1:$LISTEN/";
-Acquire::ftp::proxy "ftp://127.0.0.1:$LISTEN/";
-Acquire::https::proxy "https://127.0.0.1:$LISTEN/";
+Acquire::http::proxy "http://127.0.0.1:$CNTLM_LISTEN_PORT/";
+Acquire::ftp::proxy "ftp://127.0.0.1:$CNTLM_LISTEN_PORT/";
+Acquire::https::proxy "https://127.0.0.1:$CNTLM_LISTEN_PORT/";
+EOF
+
+CNTLM_APT_SOCKS="$BASE_CONF/apt-socks5"
+cat >$CNTLM_APT_SOCKS <<EOF
+Acquire::http::proxy "socks5h://127.0.0.1:1081/";
 EOF
 
 ## Proxy auto configuration settings | PIP
 CNTLM_PIP="$BASE_CONF/pip.conf"
 cat >$CNTLM_PIP <<EOF
 [global]
-proxy = https://127.0.0.1:$LISTEN
+proxy = https://127.0.0.1:$CNTLM_LISTEN_PORT
 EOF
 
 ## Proxy auto configuration settings | CURL
 CNTLM_CURL="$BASE_CONF/.curlrc"
 cat >$CNTLM_CURL <<EOF
-proxy=https://127.0.0.1:$LISTEN
+proxy=https://127.0.0.1:$CNTLM_LISTEN_PORT
 EOF
 
 ## Proxy auto configuration settings | GIT
@@ -80,9 +80,9 @@ cat >$CNTLM_GIT <<EOF
 	email = $email
 
 [http]
-	proxy = http://127.0.0.1:$LISTEN
+	proxy = http://127.0.0.1:$CNTLM_LISTEN_PORT
 [https]
-	proxy = https://127.0.0.1:$LISTEN
+	proxy = https://127.0.0.1:$CNTLM_LISTEN_PORT
 EOF
 
 NO_CNTLM_GIT="$BASE_CONF/.gitconfig_no_proxy"
@@ -93,17 +93,17 @@ cat >$NO_CNTLM_GIT <<EOF
 EOF
 
 ## Proxy auto configuration settings | NPM
-CNTLM_NPM="$BASE_CONF/.npmrc_proxy"
-cat >$CNTLM_NPM <<EOF
-proxy=http://127.0.0.1:$LISTEN
-https-proxy=https://127.0.0.1:$LISTEN
+NPM_CNTLM="$BASE_CONF/.npmrc_proxy"
+cat >$NPM_CNTLM <<EOF
+proxy=http://127.0.0.1:$CNTLM_LISTEN_PORT
+https-proxy=https://127.0.0.1:$CNTLM_LISTEN_PORT
 EOF
 
 NEXUS="http://nexus.prod.uci.cu"
 NPM_NEXUX=$NEXUS"/repository/npm-all"
 
-CNTLM_NPM_NEXUS="$BASE_CONF/.npmrc_proxy_nexus"
-cat >$CNTLM_NPM_NEXUS <<EOF
+NPM_CNTLM_NEXUS="$BASE_CONF/.npmrc_proxy_nexus"
+cat >$NPM_CNTLM_NEXUS <<EOF
 strict-ssl=false
 registry=$NPM_NEXUX
 EOF
@@ -114,7 +114,9 @@ mkdir -p $bin
 
 ## Copy proxy files
 cat >"$bin/cntlm_on" <<EOF
+
 #!/bin/bash
+
 echo "Creating cntlm_on connection"
 
 sudo cp -rf $CNTLM_CONFIG /etc/cntlm.conf
@@ -125,8 +127,8 @@ cp -rf $CNTLM_CURL /home/$USER/.curlrc
 
 echo "Write [npm|nexus]"
 read NPM_NEXUS
-[ \$NPM_NEXUS = 'npm' ] && cp -rf $CNTLM_NPM /home/$USER/.npmrc
-[ \$NPM_NEXUS = 'nexus' ] && cp -rf $CNTLM_NPM_NEXUS /home/$USER/.npmrc
+[ \$NPM_NEXUS = 'npm' ] && cp -rf $NPM_CNTLM /home/$USER/.npmrc
+[ \$NPM_NEXUS = 'nexus' ] && cp -rf $NPM_CNTLM_NEXUS /home/$USER/.npmrc
 
 cp -rf $CNTLM_GIT /home/$USER/.gitconfig
 
@@ -136,11 +138,11 @@ cp -rf  /home/$USER/.bashrc /home/$USER/.bashrc.bak
 
 ## Proxy auto configuration settings | TERMINAL
 cat >> /home/$USER/.bashrc <<EOFa
-export http_proxy=http://127.0.0.1:$LISTEN
-export https_proxy=https://127.0.0.1:$LISTEN
+export http_proxy=http://127.0.0.1:$CNTLM_LISTEN_PORT
+export https_proxy=https://127.0.0.1:$CNTLM_LISTEN_PORT
 export ftp_proxy=\$http_proxy
 export no_proxy="$NO_PROXY_LIST"
-export all_proxy=https://127.0.0.1:$LISTEN
+export all_proxy=https://127.0.0.1:$CNTLM_LISTEN_PORT
 EOFa
 
 echo "cntlm_on ready"
@@ -157,7 +159,7 @@ sudo service cntlm stop >> /tmp/cntlm_off.log
 sudo rm -rf /etc/apt/apt.conf.d/99_proxy
 rm -rf /home/$USER/.curlrc
 
-rm -rf $CNTLM_NPM /home/$USER/.npmrc
+rm -rf $NPM_CNTLM /home/$USER/.npmrc
 
 rm -rf /home/$USER/.gitconfig
 cp -rf $NO_CNTLM_GIT /home/$USER/.gitconfig
