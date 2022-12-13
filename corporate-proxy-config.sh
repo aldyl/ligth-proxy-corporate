@@ -1,27 +1,41 @@
 #!/bin/bash
-echo "Usage: Install the proxy helper scripts"
-name="Ing. Aldy Leon Garcia"
+echo "Script to play with work/school proxy"
+name="!Ghost!"
 email="aldyleongarcia@gmail.com"
-echo $name
-echo $email
+echo "Autor: "$name
+echo "Contact me: "$email
 
+#Installer localpath
 BASE_CONF=/home/$USER/opt/corporate_proxy
 mkdir -p $BASE_CONF && cd $BASE_CONF
 
 #Install the cntlm
-sudo apt install -y cntlm
+bin_cntlm=$(command -v cntlm)
+[ $bin_cntlm == "" ] && sudo apt install -y cntlm
 
-#Basic account information
+echo "Check depends" 
+echo "Is cntlm present: $bin_cntlm"
+
+# Exit on bad cntlm installer
+[ $bin_cntlm == "" ] && exit
+
+
+echo "Basic account information"
+
 echo "Username" && read USER_CNTLM
 echo "Password" && read PASSWORD
 echo "Domain" && read DOMAIN
 echo "Domain ip:port" && read DOMAIN_IP_PORT
 echo "Cntlm listen port" && read CNTLM_LISTEN_PORT
 echo "Exclude from Proxy" 
-echo "localhost, 127.0.0.*, 10.*, 192.168.*"
+echo "localhost, 127.0.0.*, 10.*, 192.168.*, *.uci.cu"
 read NO_PROXY_LIST
 
-## Proxy auto configuration settings | CNTLM_CONFIG
+
+echo "Proxy auto configuration settings | CNTLM_CONFIG"
+
+echo "Write cntlm.conf"
+
 CNTLM_CONFIG="$BASE_CONF/cntlm.conf"
 cat >$CNTLM_CONFIG <<EOF
 Username	$USER_CNTLM
@@ -32,7 +46,8 @@ Listen		$CNTLM_LISTEN_PORT
 Password    $PASSWORD
 EOF
 
-## Proxy auto configuration settings
+echo "Proxy auto configuration settings | CNTLPAC"
+
 CNTLM_PAC="$BASE_CONF/proxy.pac"
 cat >$CNTLM_PAC <<EOF
 function FindProxyForURL (url, host) {
