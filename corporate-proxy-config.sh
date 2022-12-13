@@ -26,7 +26,9 @@ echo "Username" && read USER_CNTLM
 echo "Password" && read PASSWORD
 echo "Domain" && read DOMAIN
 echo "Domain ip:port" && read DOMAIN_IP_PORT
-echo "Cntlm listen port" && read CNTLM_LISTEN_PORT
+echo "Direct Cntlm listen port" && read CNTLM_LISTEN_PORT.
+echo "Tunel HTTP listen port" && read HTTP_LISTEN_PORT
+echo "Tunel Socks5 listen port" && read SOCKS_LISTEN_PORT
 echo "Exclude from Proxy" 
 echo "localhost, 127.0.0.*, 10.*, 192.168.*, *.uci.cu"
 read NO_PROXY_LIST
@@ -46,22 +48,24 @@ Listen		$CNTLM_LISTEN_PORT
 Password    $PASSWORD
 EOF
 
-echo "Proxy auto configuration settings | CNTLPAC"
+echo "Proxy auto configuration settings | CNTLM_PAC"
 
 CNTLM_PAC="$BASE_CONF/proxy.pac"
 cat >$CNTLM_PAC <<EOF
 function FindProxyForURL (url, host) {
     if (isResolvable('youtube.com')) {
-        return 'SOCKS5 127.0.0.1:1081; PROXY 127.0.0.1:8081; DIRECT';  //psiphon
+        return 'SOCKS5 127.0.0.1:$SOCKS_LISTEN_PORT; PROXY 127.0.0.1:$HTTP_LISTEN_PORT; DIRECT';  //vpn
     }
-    if (isResolvable('cuota.uci.cu')) {//UCI
+    if (isResolvable('cuota.uci.cu')) {
         return 'PROXY 127.0.0.1:$CNTLM_LISTEN_PORT; PROXY $DOMAIN_IP_PORT; DIRECT';   //cntlm
     }
     return 'DIRECT'; //no service
 }
 EOF
 
-## Proxy auto configuration settings | APT
+
+echo "Proxy auto configuration settings | CNTLM_APT"
+
 CNTLM_APT="$BASE_CONF/apt-proxy"
 cat >$CNTLM_APT <<EOF
 Acquire::http::proxy "http://127.0.0.1:$CNTLM_LISTEN_PORT/";
@@ -69,9 +73,11 @@ Acquire::ftp::proxy "ftp://127.0.0.1:$CNTLM_LISTEN_PORT/";
 Acquire::https::proxy "https://127.0.0.1:$CNTLM_LISTEN_PORT/";
 EOF
 
+echo "Proxy auto configuration settings | CNTLM_APT_SOCKS"
+
 CNTLM_APT_SOCKS="$BASE_CONF/apt-socks5"
 cat >$CNTLM_APT_SOCKS <<EOF
-Acquire::http::proxy "socks5h://127.0.0.1:1081/";
+Acquire::http::proxy "socks5h://127.0.0.1:$SOCKS_LISTEN_PORT/";
 EOF
 
 ## Proxy auto configuration settings | PIP
