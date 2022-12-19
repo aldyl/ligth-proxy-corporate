@@ -25,8 +25,8 @@ echo "Basic account information"
 echo "Username" && read USER_CNTLM
 echo "Password" && read PASSWORD
 echo "Domain" && read DOMAIN
-echo "Domain ip:port" && read DOMAIN_IP_PORT
-echo "Direct Cntlm listen port" && read CNTLM_LISTEN_PORT.
+echo "ip:port" && read DOMAIN_IP_PORT
+echo "Direct Cntlm listen port" && read CNTLM_LISTEN_PORT
 echo "Tunel HTTP listen port" && read HTTP_LISTEN_PORT
 echo "Tunel Socks5 listen port" && read SOCKS_LISTEN_PORT
 echo "Exclude from Proxy" 
@@ -34,7 +34,9 @@ echo "localhost, 127.0.0.*, 10.*, 192.168.*, *.uci.cu"
 read NO_PROXY_LIST
 
 
-echo "Proxy auto configuration settings | CNTLM_CONFIG"
+echo "Proxy auto configuration settings"
+
+echo "CNTLM_CONFIG"
 
 echo "Write cntlm.conf"
 
@@ -48,7 +50,7 @@ Listen		$CNTLM_LISTEN_PORT
 Password    $PASSWORD
 EOF
 
-echo "Proxy auto configuration settings | CNTLM_PAC"
+echo "CNTLM_PAC"
 
 CNTLM_PAC="$BASE_CONF/proxy.pac"
 cat >$CNTLM_PAC <<EOF
@@ -64,7 +66,7 @@ function FindProxyForURL (url, host) {
 EOF
 
 
-echo "Proxy auto configuration settings | CNTLM_APT"
+echo "CNTLM_APT"
 
 CNTLM_APT="$BASE_CONF/apt-proxy"
 cat >$CNTLM_APT <<EOF
@@ -73,28 +75,46 @@ Acquire::ftp::proxy "ftp://127.0.0.1:$CNTLM_LISTEN_PORT/";
 Acquire::https::proxy "https://127.0.0.1:$CNTLM_LISTEN_PORT/";
 EOF
 
-echo "Proxy auto configuration settings | CNTLM_APT_SOCKS"
+echo "CNTLM_APT_SOCKS"
 
 CNTLM_APT_SOCKS="$BASE_CONF/apt-socks5"
 cat >$CNTLM_APT_SOCKS <<EOF
 Acquire::http::proxy "socks5h://127.0.0.1:$SOCKS_LISTEN_PORT/";
 EOF
 
-## Proxy auto configuration settings | PIP
-CNTLM_PIP="$BASE_CONF/pip.conf"
+echo "CNTLM_PIP"
+
+CNTLM_PIP="$BASE_CONF/pip-cntlm"
 cat >$CNTLM_PIP <<EOF
 [global]
 proxy = https://127.0.0.1:$CNTLM_LISTEN_PORT
 EOF
 
-## Proxy auto configuration settings | CURL
-CNTLM_CURL="$BASE_CONF/.curlrc"
+echo "NEXUS_PIP"
+
+CNTLM_PIP="$BASE_CONF/pip-nexus"
+cat >$CNTLM_PIP <<EOF
+[global]
+timeout = 120
+index = http://nexus.prod.uci.cu/repository/pypi-all/pypi
+index-url = http://nexus.prod.uci.cu/repository/pypi-all/simple
+[install]
+trusted-host = nexus.prod.uci.cu
+
+; Extra index to private pypi dependencies
+; extra-index-url = http://nexus.prod.uci.cu/repository/pypi-all/simple
+EOF
+
+echo  "CNTLM_CURL"
+
+CNTLM_CURL="$BASE_CONF/curlrc"
 cat >$CNTLM_CURL <<EOF
 proxy=https://127.0.0.1:$CNTLM_LISTEN_PORT
 EOF
 
-## Proxy auto configuration settings | GIT
-CNTLM_GIT="$BASE_CONF/.gitconfig_proxy"
+echo "CNTLM_GIT"
+
+CNTLM_GIT="$BASE_CONF/gitconfig-proxy"
 cat >$CNTLM_GIT <<EOF
 [user]
 	name = $name
@@ -106,28 +126,59 @@ cat >$CNTLM_GIT <<EOF
 	proxy = https://127.0.0.1:$CNTLM_LISTEN_PORT
 EOF
 
-NO_CNTLM_GIT="$BASE_CONF/.gitconfig_no_proxy"
+echo "NO_CNTLM_GIT"
+
+NO_CNTLM_GIT="$BASE_CONF/gitconfig-no-proxy"
 cat >$NO_CNTLM_GIT <<EOF
 [user]
 	name = $name
 	email = $email
 EOF
 
-## Proxy auto configuration settings | NPM
-NPM_CNTLM="$BASE_CONF/.npmrc_proxy"
+echo "NPM_CNTLM"
+
+NPM_CNTLM="$BASE_CONF/npmrc-proxy"
 cat >$NPM_CNTLM <<EOF
+strict-ssl=false
 proxy=http://127.0.0.1:$CNTLM_LISTEN_PORT
 https-proxy=https://127.0.0.1:$CNTLM_LISTEN_PORT
 EOF
 
+echo "NPM_NEXUS"
+
 NEXUS="http://nexus.prod.uci.cu"
 NPM_NEXUX=$NEXUS"/repository/npm-all"
 
-NPM_CNTLM_NEXUS="$BASE_CONF/.npmrc_proxy_nexus"
+NPM_CNTLM_NEXUS="$BASE_CONF/npmrc-proxy-nexus"
 cat >$NPM_CNTLM_NEXUS <<EOF
 strict-ssl=false
 registry=$NPM_NEXUX
 EOF
+
+echo "CNTLM_TERMINAL"
+
+CNTLM_TERMINAL="$BASE_CONF/cntlm-terminal"
+cat >$CNTLM_TERMINAL <<EOF
+export http_proxy=http://127.0.0.1:$CNTLM_LISTEN_PORT
+export https_proxy=https://127.0.0.1:$CNTLM_LISTEN_PORT
+export ftp_proxy=\$http_proxy
+export no_proxy="$NO_PROXY_LIST"
+export all_proxy=\$https_proxy
+EOF
+
+
+echo "CNTLM_TUNNEL_TERMINAL"
+
+CNTLM_TUNNEL_TERMINAL="$BASE_CONF/cntlm-socks-terminal"
+cat >$CNTLM_TUNNEL_TERMINAL <<EOF
+export http_proxy=http://127.0.0.1:$HTTP_LISTEN_PORT
+export https_proxy=\$http_proxy
+export ftp_proxy=\$http_proxy
+export no_proxy="$NO_PROXY_LIST"
+export all_proxy=http://127.0.0.1:$SOCKS_LISTEN_PORT
+EOF
+
+exit
 
 ## Make logic
 bin="/home/$USER/bin"
