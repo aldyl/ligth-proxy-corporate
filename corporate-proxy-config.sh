@@ -252,23 +252,21 @@ EOF
 
 }
 
-echo "$CNTLM_NPM"
+set_npm(){
 
+echo "$CNTLM_NPM"
 cat >$CNTLM_NPM <<EOF
 strict-ssl=false
 proxy=http://127.0.0.1:$CNTLM_HTTP_LISTEN_PORT
 https-proxy=https://127.0.0.1:$CNTLM_HTTP_LISTEN_PORT
 EOF
 
-
 echo "$TUNNEL_NPM"
-
 cat >$TUNNEL_NPM <<EOF
 strict-ssl=false
 proxy=http://127.0.0.1:$TUNNEL_HTTP_LISTEN_PORT
 https-proxy=https://127.0.0.1:$TUNNEL_HTTP_LISTEN_PORT
 EOF
-
 
 echo "$NEXUS_NPM"
 cat >$NEXUS_NPM <<EOF
@@ -276,32 +274,29 @@ strict-ssl=false
 registry=http://nexus.prod.uci.cu/repository/npm-all
 EOF
 
+}
 
+set_terminal(){
 
 echo "$CNTLM_TERMINAL"
-
 cat >$CNTLM_TERMINAL <<EOF
 export no_proxy="$NO_PROXY_LIST"
 export all_proxy=https://127.0.0.1:$CNTLM_HTTP_LISTEN_PORT
 EOF
 
-
 echo "$TUNNEL_TERMINAL"
-
 cat >$TUNNEL_TERMINAL <<EOF
 export no_proxy="$NO_PROXY_LIST"
 export all_proxy=https://127.0.0.1:$TUNNEL_HTTP_LISTEN_PORT
 EOF
 
-
-
 echo "$SOCKS5_TERMINAL"
-
 cat >$SOCKS5_TERMINAL <<EOF
 export no_proxy="$NO_PROXY_LIST"
 export all_proxy=http://127.0.0.1:$SOCKS_LISTEN_PORT
 EOF
 
+}
 
 echo "===Write cntlm_on==="
 
@@ -528,4 +523,6 @@ set_apt
 set_pip
 set_curl
 set_git
+set_npm
+set_terminal
 exit
