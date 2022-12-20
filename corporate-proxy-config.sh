@@ -296,6 +296,10 @@ echo "$SYSTEM_PROXY_NPM"
 echo "Load global proxy terminal settings"
 source $CNTLM_TERMINAL
 
+#Close
+bin_proxy_off=$(command -v proxy-off)
+[ "\$bin_proxy_off" != "" ] && proxy-off
+
 EOF
 
 
@@ -329,6 +333,10 @@ echo "$SYSTEM_PROXY_NPM"
 
 echo "Load global proxy terminal settings"
 source $TUNNEL_TERMINAL
+
+#Close
+bin_proxy_off=$(command -v proxy-off)
+[ "\$bin_proxy_off" != "" ] && proxy-off
 
 EOF
 
@@ -364,6 +372,10 @@ echo "$SYSTEM_PROXY_NPM"
 echo "Load global proxy terminal settings"
 source $SOCKS5_TERMINAL
 
+#Close
+bin_proxy_off=$(command -v proxy-off)
+[ "\$bin_proxy_off" != "" ] && proxy-off
+
 EOF
 
 
@@ -383,6 +395,10 @@ echo "$SYSTEM_PROXY_GIT"
 
 $SYSTEM_COPY $NEXUS_NPM $SYSTEM_PROXY_NPM
 echo "$SYSTEM_PROXY_NPM"
+
+#Close
+bin_proxy_off=$(command -v proxy-off)
+[ "\$bin_proxy_off" != "" ] && proxy-off
 
 EOF
 
@@ -417,6 +433,10 @@ echo "$SYSTEM_PROXY_NPM"
 export all_proxy=""
 echo "clean terminal proxy"
 
+#Close
+bin_proxy_off=$(command -v proxy-off)
+[ "\$bin_proxy_off" != "" ] && proxy-off
+
 EOF
 
 BINARIES="$CNTLM_ON $TUNNEL_ON $SOCKS5_ON $NEXUS_ON $CLEAN_PROXY"
@@ -430,6 +450,10 @@ $SYSTEM_LINK $TUNNEL_ON $SYSTEM_BIN_TUNNEL
 $SYSTEM_LINK $SOCKS5_ON $SYSTEM_BIN_SOCKS5
 $SYSTEM_LINK $NEXUS_ON $SYSTEM_BIN_NEXUS
 $SYSTEM_LINK $CLEAN_PROXY $SYSTEM_BIN_CLEAN
+
+#Close
+bin_proxy_off=$(command -v proxy-off)
+[ "$bin_proxy_off" != "" ] && proxy-off
 
 echo "Helper
 cntlm-on
