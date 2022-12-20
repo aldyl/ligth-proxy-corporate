@@ -152,31 +152,29 @@ cat >$TUNNEL_PAC <<EOF
 EOF
 }
 
-echo "$CNTLM_APT"
 
+set_apt(){
+
+echo "$CNTLM_APT"
 cat >$CNTLM_APT <<EOF
 Acquire::http::proxy "http://127.0.0.1:$CNTLM_HTTP_LISTEN_PORT/";
 Acquire::ftp::proxy "ftp://127.0.0.1:$CNTLM_HTTP_LISTEN_PORT/";
 Acquire::https::proxy "https://127.0.0.1:$CNTLM_HTTP_LISTEN_PORT/";
 EOF
 
-
 echo "$TUNNEL_APT"
-
 cat >$TUNNEL_APT <<EOF
 Acquire::http::proxy "http://127.0.0.1:$TUNNEL_HTTP_LISTEN_PORT/";
 Acquire::ftp::proxy "ftp://127.0.0.1:$TUNNEL_HTTP_LISTEN_PORT/";
 Acquire::https::proxy "https://127.0.0.1:$TUNNEL_HTTP_LISTEN_PORT/";
 EOF
 
-
 echo "$SOCKS_APT"
-
 cat >$SOCKS_APT<<EOF
 Acquire::http::proxy "socks5h://127.0.0.1:$SOCKS_LISTEN_PORT/";
 EOF
 
-
+}
 
 echo "$CNTLM_PIP"
 
@@ -532,4 +530,5 @@ get_user_info
 echo "=====Writing configuration settings files====="
 set_cntlm
 set_proxy_pack
+set_apt
 exit
