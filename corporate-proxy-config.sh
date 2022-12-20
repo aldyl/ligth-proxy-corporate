@@ -83,23 +83,27 @@ check_depends () {
 
 }
 
-echo "=====Basic account information====="
+get_user_info() {
 
-echo "Name" && read NAME
-echo "Email" && read EMAIL
-echo "Username" && read USER_CNTLM
-echo "Password" && read PASSWORD
-echo "Proxy domain" && read DOMAIN
-echo "ip:port" && read DOMAIN_IP_PORT
-echo "Listen ports:"
-echo "Cntlm http" && read CNTLM_HTTP_LISTEN_PORT
-echo "Tunnel http" && read TUNNEL_HTTP_LISTEN_PORT
-echo "Tunnel socks5" && read TUNNEL_SOCKS_LISTEN_PORT
-echo "Write a exclude from proxy line" 
-echo "localhost, 127.0.0.*, 10.*, 192.168.*, *.uci.cu"
-read NO_PROXY_LIST
+	echo "=====Basic account information====="
 
-echo "=====Writing configuration settings files====="
+	echo "Name" && read NAME
+	echo "Email" && read EMAIL
+	echo "Username" && read USER_CNTLM
+	echo "Password" && read PASSWORD
+	echo "Proxy domain" && read DOMAIN
+	echo "ip:port" && read DOMAIN_IP_PORT
+	echo "Listen ports:"
+	echo "Cntlm http" && read CNTLM_HTTP_LISTEN_PORT
+	echo "Tunnel http" && read TUNNEL_HTTP_LISTEN_PORT
+	echo "Tunnel socks5" && read TUNNEL_SOCKS_LISTEN_PORT
+	echo "Write a exclude from proxy line" 
+	echo "localhost, 127.0.0.*, 10.*, 192.168.*, *.uci.cu"
+	read NO_PROXY_LIST
+
+}
+
+set_cntlm() {
 
 echo "$CNTLM_CONFIG"
 
@@ -111,6 +115,10 @@ NoProxy		$NO_PROXY_LIST
 Listen		$CNTLM_HTTP_LISTEN_PORT
 Password    $PASSWORD
 EOF
+
+}
+
+
 
 
 echo "$DIRECT_PAC"
@@ -532,7 +540,9 @@ exit
 }
 
 echo "Configure corporate proxy"
-
 check_depends
+get_user_info
+echo "=====Writing configuration settings files====="
+set_cntlm
 
 exit
