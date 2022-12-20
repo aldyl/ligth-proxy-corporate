@@ -343,8 +343,9 @@ EOF
 
 }
 
-echo "===Write tunnel_on==="
+write_tunnel(){
 
+echo "===Write tunnel_on==="
 
 echo "$TUNNEL_ON"
 cat >"$TUNNEL_ON" <<EOF
@@ -379,6 +380,8 @@ bin_proxy_off=$(command -v proxy-off)
 [ "\$bin_proxy_off" != "" ] && proxy-off
 
 EOF
+
+}
 
 
 echo "===Write socks5_on==="
@@ -528,4 +531,5 @@ set_npm
 set_terminal
 echo "===Write programs==="
 write_cntlm
+write_tunnel
 exit
