@@ -176,23 +176,21 @@ EOF
 
 }
 
-echo "$CNTLM_PIP"
+set_pip(){
 
+echo "$CNTLM_PIP"
 cat >$CNTLM_PIP <<EOF
 [global]
 proxy = https://127.0.0.1:$CNTLM_HTTP_LISTEN_PORT
 EOF
 
 echo "$TUNNEL_PIP"
-
 cat >$TUNNEL_PIP <<EOF
 [global]
 proxy = https://127.0.0.1:$TUNNEL_HTTP_LISTEN_PORT
 EOF
 
-
 echo "$NEXUS_PIP"
-
 cat >$NEXUS_PIP <<EOF
 [global]
 timeout = 120
@@ -204,6 +202,8 @@ trusted-host = nexus.prod.uci.cu
 ; Extra index to private pypi dependencies
 ; extra-index-url = http://nexus.prod.uci.cu/repository/pypi-all/simple
 EOF
+
+}
 
 
 
@@ -531,4 +531,5 @@ echo "=====Writing configuration settings files====="
 set_cntlm
 set_proxy_pack
 set_apt
+set_pip
 exit
