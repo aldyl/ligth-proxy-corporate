@@ -1,0 +1,12 @@
+Source: proxy-corporate-config
+Section: net
+Priority: optional
+Maintainer: Aldy León García <algarcia@uci.cu>
+Build-Depends: dh-make, intltool, autoconf, debhelper (>=9)
+Standards-Version: 3.9.6
+
+Package: proxy-corporate-config
+Architecture: all
+Depends:  cntlm
+Description: Change your proxy config files
+ Switch your conf files
