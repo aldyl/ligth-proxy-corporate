@@ -118,43 +118,31 @@ EOF
 
 }
 
-
-
+set_proxy_pack(){
 
 echo "$DIRECT_PAC"
 cat >$DIRECT_PAC <<EOF
  function FindProxyForURL (url, host) {
-
   return 'DIRECT';
-  
  }
 EOF
-
 
 echo "$CNTLM_PAC"
 cat >$CNTLM_PAC <<EOF
  function FindProxyForURL (url, host) {
-     
   if (isResolvable('cuota.uci.cu')) {
     return 'PROXY 127.0.0.1:$CNTLM_HTTP_LISTEN_PORT; DIRECT';
   }
-  
   return 'DIRECT';
-  
  }
 EOF
-
-
 
 echo "$TUNNEL_PAC"
 cat >$TUNNEL_PAC <<EOF
  function FindProxyForURL (url, host) {
-
   return 'PROXY 127.0.0.1:$TUNNEL_HTTP_LISTEN_PORT; DIRECT';
-  
  }
 EOF
-
 
 echo "$TUNNEL_PAC"
 cat >$TUNNEL_PAC <<EOF
@@ -162,8 +150,7 @@ cat >$TUNNEL_PAC <<EOF
   return 'PROXY 127.0.0.1:$TUNNEL_SOCKS_LISTEN_PORT; DIRECT'; 
  }
 EOF
-
-
+}
 
 echo "$CNTLM_APT"
 
@@ -544,5 +531,5 @@ check_depends
 get_user_info
 echo "=====Writing configuration settings files====="
 set_cntlm
-
+set_proxy_pack
 exit
