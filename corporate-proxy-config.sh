@@ -455,6 +455,8 @@ EOF
 
 }
 
+write_clean(){
+
 echo "===Write clean_proxy==="
 
 
@@ -491,6 +493,10 @@ echo "clean terminal proxy"
 
 EOF
 
+}
+
+install_binaries(){
+
 BINARIES="$CNTLM_ON $TUNNEL_ON $SOCKS5_ON $NEXUS_ON $CLEAN_PROXY"
 
 for bin in $BINARIES; do
@@ -502,6 +508,10 @@ $SYSTEM_LINK $TUNNEL_ON $SYSTEM_BIN_TUNNEL
 $SYSTEM_LINK $SOCKS5_ON $SYSTEM_BIN_SOCKS5
 $SYSTEM_LINK $NEXUS_ON $SYSTEM_BIN_NEXUS
 $SYSTEM_LINK $CLEAN_PROXY $SYSTEM_BIN_CLEAN
+
+}
+
+
 
 echo "
 
@@ -538,4 +548,8 @@ write_cntlm
 write_tunnel
 write_socks5
 write_nexus
+write_clean
+echo "Installing binaries"
+install_binaries
+
 exit
