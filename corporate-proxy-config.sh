@@ -298,8 +298,8 @@ EOF
 
 }
 
+write_cntlm(){
 echo "===Write cntlm_on==="
-
 
 echo "$CNTLM_ON"
 cat >"$CNTLM_ON" <<EOF
@@ -341,6 +341,7 @@ bin_proxy_off=$(command -v proxy-off)
 
 EOF
 
+}
 
 echo "===Write tunnel_on==="
 
@@ -525,4 +526,6 @@ set_curl
 set_git
 set_npm
 set_terminal
+echo "===Write programs==="
+write_cntlm
 exit
