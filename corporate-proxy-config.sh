@@ -511,10 +511,13 @@ $SYSTEM_LINK $CLEAN_PROXY $SYSTEM_BIN_CLEAN
 
 }
 
+remove_conf_and_binaries(){
 
+}
+
+show_help() {
 
 echo "
-
 Helper
 
 cntlm-on	configure cntlm
@@ -522,6 +525,8 @@ tunnel-on	configure psiphon http
 socks5-on	congigure socks5 psiphon
 nexus-on	set nexus portals
 proxy-off	clean all conf files"
+
+}
 
 [ "$1" == "remove" ] && {
 
@@ -551,5 +556,5 @@ write_nexus
 write_clean
 echo "Installing binaries"
 install_binaries
-
+show_help
 exit
