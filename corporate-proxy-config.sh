@@ -513,6 +513,14 @@ $SYSTEM_LINK $CLEAN_PROXY $SYSTEM_BIN_CLEAN
 
 remove_conf_and_binaries(){
 
+$SYSTEM_DEL $BASE_CONF
+
+$SYSTEM_DEL $SYSTEM_BIN_CNTLM
+$SYSTEM_DEL $SYSTEM_BIN_TUNNEL
+$SYSTEM_DEL $SYSTEM_BIN_SOCKS5
+$SYSTEM_DEL $SYSTEM_BIN_NEXUS
+$SYSTEM_DEL $SYSTEM_BIN_CLEAN
+
 }
 
 show_help() {
@@ -530,8 +538,8 @@ proxy-off	clean all conf files"
 
 [ "$1" == "remove" ] && {
 
-echo "Clean all conf files"
-
+echo "Clean all conf and binary files"
+remove_conf_and_binaries
 
 exit
 }
