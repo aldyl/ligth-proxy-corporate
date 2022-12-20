@@ -1,10 +1,46 @@
 #!/bin/bash
-echo "Configure corporate proxy"
-
 
 USER_FOLDER="/home/$USER"
 BASE_CONF="$USER_FOLDER/opt/corporate_proxy"
 BIN_FOLDER="$USER_FOLDER/bin"
+
+# conf files
+CNTLM_CONFIG="$BASE_CONF/cntlm.conf"
+
+DIRECT_PAC="$BASE_CONF/direct.pac"
+CNTLM_PAC="$BASE_CONF/cntlm.pac"
+TUNNEL_PAC="$BASE_CONF/tunnel.pac"
+SOCKS5_PAC="$BASE_CONF/socks5.pac"
+
+CNTLM_APT="$BASE_CONF/apt-proxy"
+TUNNEL_APT="$BASE_CONF/apt-tunnel"
+SOCKS_APT="$BASE_CONF/apt-socks5"
+
+CNTLM_PIP="$BASE_CONF/pip-cntlm"
+TUNNEL_PIP="$BASE_CONF/pip-tunnel"
+NEXUS_PIP="$BASE_CONF/pip-nexus"
+
+CNTLM_CURL="$BASE_CONF/curlrc-cntlm"
+TUNNEL_CURL="$BASE_CONF/curlrc-tunnel"
+
+CNTLM_GIT="$BASE_CONF/gitconfig-proxy"
+TUNNEL_GIT="$BASE_CONF/gitconfig-tunnel"
+NO_PROXY_GIT="$BASE_CONF/gitconfig-no-proxy"
+
+CNTLM_NPM="$BASE_CONF/npmrc-cntlm"
+TUNNEL_NPM="$BASE_CONF/npmrc-tunnel"
+NEXUS_NPM="$BASE_CONF/npmrc-nexus"
+
+CNTLM_TERMINAL="$BASE_CONF/terminal-cntlm"
+TUNNEL_TERMINAL="$BASE_CONF/terminal-tunnel"
+SOCKS5_TERMINAL="$BASE_CONF/terminal-socks5"
+
+CNTLM_ON="$BASE_CONF/cntlm_on"
+TUNNEL_ON="$BASE_CONF/tunnel_on"
+SOCKS5_ON="$BASE_CONF/socks5_on"
+NEXUS_ON="$BASE_CONF/nexus_on"
+CLEAN_PROXY="$BASE_CONF/clean_proxy"
+
 
 SYSTEM_COPY="cp -rf"
 SYSTEM_DEL="rm -rf"
@@ -25,23 +61,27 @@ SYSTEM_BIN_SOCKS5="$BIN_FOLDER/socks5-on"
 SYSTEM_BIN_NEXUS="$BIN_FOLDER/nexus-on"
 SYSTEM_BIN_CLEAN="$BIN_FOLDER/proxy-off"
 
-mkdir -p $BIN_FOLDER
-mkdir -p $BASE_CONF && cd $BASE_CONF
+check_depends () {
 
-#Install the cntlm
-bin_cntlm=$(command -v cntlm)
-[ "$bin_cntlm" == "" ] && sudo apt install -y cntlm
+	mkdir -p $BIN_FOLDER
+	mkdir -p $BASE_CONF
 
-#Install the psiphon
-bin_psiphon=$(command -v psiphon)
-[ "$bin_psiphon" == "" ] && sudo apt install -y psiphon
+	#Install the cntlm
+	bin_cntlm=$(command -v cntlm)
+	[ "$bin_cntlm" == "" ] && sudo apt install -y cntlm
 
-echo "==Check depends" 
-echo "=>Is cntlm present: $bin_cntlm"
-echo "=>Is psiphon present: $bin_psiphon"
+	#Install the psiphon
+	bin_psiphon=$(command -v psiphon)
+	[ "$bin_psiphon" == "" ] && sudo apt install -y psiphon
 
-# On bad cntlm installer
-[ $bin_cntlm == "" ] && echo "CNTLM is neccesary"
+	echo "==Check depends" 
+	echo "=>Is cntlm present: $bin_cntlm"
+	echo "=>Is psiphon present: $bin_psiphon"
+
+	# On bad cntlm installer
+	[ $bin_cntlm == "" ] && echo "CNTLM is neccesary"
+
+}
 
 echo "=====Basic account information====="
 
@@ -61,7 +101,6 @@ read NO_PROXY_LIST
 
 echo "=====Writing configuration settings files====="
 
-CNTLM_CONFIG="$BASE_CONF/cntlm.conf"
 echo "$CNTLM_CONFIG"
 
 cat >$CNTLM_CONFIG <<EOF
@@ -73,17 +112,17 @@ Listen		$CNTLM_HTTP_LISTEN_PORT
 Password    $PASSWORD
 EOF
 
-DIRECT_PAC="$BASE_CONF/cntlm.pac"
+
 echo "$DIRECT_PAC"
 cat >$DIRECT_PAC <<EOF
  function FindProxyForURL (url, host) {
-	
+
   return 'DIRECT';
   
  }
 EOF
 
-CNTLM_PAC="$BASE_CONF/cntlm.pac"
+
 echo "$CNTLM_PAC"
 cat >$CNTLM_PAC <<EOF
  function FindProxyForURL (url, host) {
@@ -98,7 +137,7 @@ cat >$CNTLM_PAC <<EOF
 EOF
 
 
-TUNNEL_PAC="$BASE_CONF/tunnel.pac"
+
 echo "$TUNNEL_PAC"
 cat >$TUNNEL_PAC <<EOF
  function FindProxyForURL (url, host) {
@@ -108,7 +147,7 @@ cat >$TUNNEL_PAC <<EOF
  }
 EOF
 
-SOCKS5_PAC="$BASE_CONF/socks5.pac"
+
 echo "$TUNNEL_PAC"
 cat >$TUNNEL_PAC <<EOF
  function FindProxyForURL (url, host) {
@@ -117,7 +156,7 @@ cat >$TUNNEL_PAC <<EOF
 EOF
 
 
-CNTLM_APT="$BASE_CONF/apt-proxy"
+
 echo "$CNTLM_APT"
 
 cat >$CNTLM_APT <<EOF
@@ -126,7 +165,7 @@ Acquire::ftp::proxy "ftp://127.0.0.1:$CNTLM_HTTP_LISTEN_PORT/";
 Acquire::https::proxy "https://127.0.0.1:$CNTLM_HTTP_LISTEN_PORT/";
 EOF
 
-TUNNEL_APT="$BASE_CONF/apt-tunnel"
+
 echo "$TUNNEL_APT"
 
 cat >$TUNNEL_APT <<EOF
@@ -135,7 +174,7 @@ Acquire::ftp::proxy "ftp://127.0.0.1:$TUNNEL_HTTP_LISTEN_PORT/";
 Acquire::https::proxy "https://127.0.0.1:$TUNNEL_HTTP_LISTEN_PORT/";
 EOF
 
-SOCKS_APT="$BASE_CONF/apt-socks5"
+
 echo "$SOCKS_APT"
 
 cat >$SOCKS_APT<<EOF
@@ -143,7 +182,7 @@ Acquire::http::proxy "socks5h://127.0.0.1:$SOCKS_LISTEN_PORT/";
 EOF
 
 
-CNTLM_PIP="$BASE_CONF/pip-cntlm"
+
 echo "$CNTLM_PIP"
 
 cat >$CNTLM_PIP <<EOF
@@ -151,7 +190,6 @@ cat >$CNTLM_PIP <<EOF
 proxy = https://127.0.0.1:$CNTLM_HTTP_LISTEN_PORT
 EOF
 
-TUNNEL_PIP="$BASE_CONF/pip-tunnel"
 echo "$TUNNEL_PIP"
 
 cat >$TUNNEL_PIP <<EOF
@@ -159,7 +197,7 @@ cat >$TUNNEL_PIP <<EOF
 proxy = https://127.0.0.1:$TUNNEL_HTTP_LISTEN_PORT
 EOF
 
-NEXUS_PIP="$BASE_CONF/pip-nexus"
+
 echo "$NEXUS_PIP"
 
 cat >$NEXUS_PIP <<EOF
@@ -175,21 +213,21 @@ trusted-host = nexus.prod.uci.cu
 EOF
 
 
-CNTLM_CURL="$BASE_CONF/curlrc-cntlm"
+
 echo  "$CNTLM_CURL"
 
 cat >$CNTLM_CURL <<EOF
 proxy=http://127.0.0.1:$CNTLM_HTTP_LISTEN_PORT
 EOF
 
-TUNNEL_CURL="$BASE_CONF/curlrc-tunnel"
+
 echo  "$TUNNEL_CURL"
 
 cat >$TUNNEL_CURL <<EOF
 proxy=http://127.0.0.1:$TUNNEL_HTTP_LISTEN_PORT
 EOF
 
-CNTLM_GIT="$BASE_CONF/gitconfig-proxy"
+
 echo "$CNTLM_GIT"
 
 cat >$CNTLM_GIT <<EOF
@@ -202,7 +240,7 @@ cat >$CNTLM_GIT <<EOF
 	proxy = https://127.0.0.1:$CNTLM_HTTP_LISTEN_PORT
 EOF
 
-TUNNEL_GIT="$BASE_CONF/gitconfig-tunnel"
+
 echo "$TUNNEL_GIT"
 
 cat >$TUNNEL_GIT <<EOF
@@ -216,7 +254,7 @@ cat >$TUNNEL_GIT <<EOF
 EOF
 
 
-NO_PROXY_GIT="$BASE_CONF/gitconfig-no-proxy"
+
 echo "$NO_PROXY_GIT"
 
 cat >$NO_PROXY_GIT <<EOF
@@ -226,7 +264,7 @@ cat >$NO_PROXY_GIT <<EOF
 EOF
 
 
-CNTLM_NPM="$BASE_CONF/npmrc-cntlm"
+
 echo "$CNTLM_NPM"
 
 cat >$CNTLM_NPM <<EOF
@@ -235,7 +273,7 @@ proxy=http://127.0.0.1:$CNTLM_HTTP_LISTEN_PORT
 https-proxy=https://127.0.0.1:$CNTLM_HTTP_LISTEN_PORT
 EOF
 
-TUNNEL_NPM="$BASE_CONF/npmrc-tunnel"
+
 echo "$TUNNEL_NPM"
 
 cat >$TUNNEL_NPM <<EOF
@@ -244,7 +282,7 @@ proxy=http://127.0.0.1:$TUNNEL_HTTP_LISTEN_PORT
 https-proxy=https://127.0.0.1:$TUNNEL_HTTP_LISTEN_PORT
 EOF
 
-NEXUS_NPM="$BASE_CONF/npmrc-nexus"
+
 echo "$NEXUS_NPM"
 cat >$NEXUS_NPM <<EOF
 strict-ssl=false
@@ -252,7 +290,7 @@ registry=http://nexus.prod.uci.cu/repository/npm-all
 EOF
 
 
-CNTLM_TERMINAL="$BASE_CONF/terminal-cntlm"
+
 echo "$CNTLM_TERMINAL"
 
 cat >$CNTLM_TERMINAL <<EOF
@@ -260,7 +298,7 @@ export no_proxy="$NO_PROXY_LIST"
 export all_proxy=https://127.0.0.1:$CNTLM_HTTP_LISTEN_PORT
 EOF
 
-TUNNEL_TERMINAL="$BASE_CONF/terminal-tunnel"
+
 echo "$TUNNEL_TERMINAL"
 
 cat >$TUNNEL_TERMINAL <<EOF
@@ -269,7 +307,7 @@ export all_proxy=https://127.0.0.1:$TUNNEL_HTTP_LISTEN_PORT
 EOF
 
 
-SOCKS5_TERMINAL="$BASE_CONF/terminal-socks5"
+
 echo "$SOCKS5_TERMINAL"
 
 cat >$SOCKS5_TERMINAL <<EOF
@@ -280,7 +318,7 @@ EOF
 
 echo "===Write cntlm_on==="
 
-CNTLM_ON="$BASE_CONF/cntlm_on"
+
 echo "$CNTLM_ON"
 cat >"$CNTLM_ON" <<EOF
 #!/bin/bash
@@ -324,7 +362,7 @@ EOF
 
 echo "===Write tunnel_on==="
 
-TUNNEL_ON="$BASE_CONF/tunnel_on"
+
 echo "$TUNNEL_ON"
 cat >"$TUNNEL_ON" <<EOF
 #!/bin/bash
@@ -362,7 +400,7 @@ EOF
 
 echo "===Write socks5_on==="
 
-SOCKS5_ON="$BASE_CONF/socks5_on"
+
 echo "$SOCKS5_ON"
 cat >"$SOCKS5_ON" <<EOF
 #!/bin/bash
@@ -401,7 +439,7 @@ EOF
 
 echo "===Write nexus_on==="
 
-NEXUS_ON="$BASE_CONF/nexus_on"
+
 echo "$NEXUS_ON"
 cat >"$NEXUS_ON" <<EOF
 #!/bin/bash
@@ -429,7 +467,7 @@ EOF
 
 echo "===Write clean_proxy==="
 
-CLEAN_PROXY="$BASE_CONF/clean_proxy"
+
 echo "$CLEAN_PROXY"
 cat >"$CLEAN_PROXY" <<EOF
 #!/bin/bash
@@ -440,10 +478,8 @@ sudo service cntlm stop >> $SYSTEM_CNTLM_LOG
 echo "$SYSTEM_CNTLM_CONF"
 cat "$SYSTEM_CNTLM_LOG"
 
-echo ""
 sudo $SYSTEM_COPY $DIRECT_PAC $SYSTEM_PROXY_PAC
 echo "$SYSTEM_PROXY_PAC"
-echo ""
 
 sudo $SYSTEM_DEL $SYSTEM_PROXY_APT
 echo "$SYSTEM_PROXY_APT"
@@ -463,10 +499,6 @@ echo "$SYSTEM_PROXY_NPM"
 export all_proxy=""
 echo "clean terminal proxy"
 
-#Close
-bin_proxy_off=$(command -v proxy-off)
-[ "\$bin_proxy_off" != "" ] && proxy-off
-
 EOF
 
 BINARIES="$CNTLM_ON $TUNNEL_ON $SOCKS5_ON $NEXUS_ON $CLEAN_PROXY"
@@ -481,15 +513,26 @@ $SYSTEM_LINK $SOCKS5_ON $SYSTEM_BIN_SOCKS5
 $SYSTEM_LINK $NEXUS_ON $SYSTEM_BIN_NEXUS
 $SYSTEM_LINK $CLEAN_PROXY $SYSTEM_BIN_CLEAN
 
-#Close
-bin_proxy_off=$(command -v proxy-off)
-[ "$bin_proxy_off" != "" ] && proxy-off
+echo "
 
-echo "Helper
-cntlm-on
-tunnel-on 
-socks5-on
-nexus-on
-proxy-off"
+Helper
+
+cntlm-on	configure cntlm
+tunnel-on	configure psiphon http
+socks5-on	congigure socks5 psiphon
+nexus-on	set nexus portals
+proxy-off	clean all conf files"
+
+[ "$1" == "remove" ] && {
+
+echo "Clean all conf files"
+
+
+exit
+}
+
+echo "Configure corporate proxy"
+
+check_depends
 
 exit
