@@ -1,9 +1,5 @@
 #!/bin/bash
-echo "Script to play with work/school proxy"
-name="!Ghost!"
-email="aldyleongarcia@gmail.com"
-echo "Autor: "$name
-echo "Contact me: "$email
+echo "Configure corporate proxy"
 
 #Installer localpath
 BASE_CONF=/home/$USER/opt/corporate_proxy
@@ -11,17 +7,23 @@ mkdir -p $BASE_CONF && cd $BASE_CONF
 
 #Install the cntlm
 bin_cntlm=$(command -v cntlm)
-[ $bin_cntlm == "" ] && sudo apt install -y cntlm
+[ "$bin_cntlm" == "" ] && sudo apt install -y cntlm
 
-echo "Check depends" 
-echo "Is cntlm present: $bin_cntlm"
+#Install the psiphon
+bin_psiphon=$(command -v psiphon)
+[ "$bin_psiphon" == "" ] && sudo apt install -y psiphon
 
-# Exit on bad cntlm installer
-[ $bin_cntlm == "" ] && exit
+echo "==Check depends" 
+echo "=>Is cntlm present: $bin_cntlm"
+echo "=>Is psiphon present: $bin_psiphon"
 
+# On bad cntlm installer
+[ $bin_cntlm == "" ] && echo "CNTLM is neccesary"
 
-echo "Basic account information"
+echo "=====Basic account information====="
 
+echo "Name" && read name
+echo "Email" && read email
 echo "Username" && read USER_CNTLM
 echo "Password" && read PASSWORD
 echo "Domain" && read DOMAIN
@@ -33,7 +35,7 @@ echo "Write a exclude from proxy line"
 echo "localhost, 127.0.0.*, 10.*, 192.168.*, *.uci.cu"
 read NO_PROXY_LIST
 
-echo "Writing configuration settings files"
+echo "=====Writing configuration settings files====="
 
 CNTLM_CONFIG="$BASE_CONF/cntlm.conf"
 echo "$CNTLM_CONFIG"
@@ -155,25 +157,19 @@ registry=http://nexus.prod.uci.cu/repository/npm-all
 EOF
 
 
-CNTLM_TERMINAL="$BASE_CONF/cntlm-terminal"
+CNTLM_TERMINAL="$BASE_CONF/terminal-cntlm"
 echo "$CNTLM_TERMINAL"
 
 cat >$CNTLM_TERMINAL <<EOF
-export http_proxy=http://127.0.0.1:$CNTLM_LISTEN_PORT
-export https_proxy=https://127.0.0.1:$CNTLM_LISTEN_PORT
-export ftp_proxy=\$http_proxy
 export no_proxy="$NO_PROXY_LIST"
-export all_proxy=\$https_proxy
+export all_proxy=https://127.0.0.1:$CNTLM_LISTEN_PORT
 EOF
 
 
-SOCKS5_TERMINAL="$BASE_CONF/socks5-terminal"
+SOCKS5_TERMINAL="$BASE_CONF/terminal-socks5"
 echo "$SOCKS5_TERMINAL"
 
 cat >$SOCKS5_TERMINAL <<EOF
-export http_proxy=http://127.0.0.1:$HTTP_LISTEN_PORT
-export https_proxy=\$http_proxy
-export ftp_proxy=\$http_proxy
 export no_proxy="$NO_PROXY_LIST"
 export all_proxy=http://127.0.0.1:$SOCKS_LISTEN_PORT
 EOF
