@@ -23,7 +23,7 @@ echo "=>Is psiphon present: $bin_psiphon"
 echo "=====Basic account information====="
 
 echo "Name" && read NAME
-echo "Email" && read >EMAIL
+echo "Email" && read EMAIL
 echo "Username" && read USER_CNTLM
 echo "Password" && read PASSWORD
 echo "Proxy domain" && read DOMAIN
@@ -51,7 +51,7 @@ Password    $PASSWORD
 EOF
 
 
-CNTLM_PAC="$BASE_CONF/proxy.pac"
+CNTLM_PAC="$BASE_CONF/cntlm.pac"
 echo "$CNTLM_PAC"
 cat >$CNTLM_PAC <<EOF
  function FindProxyForURL (url, host) {
@@ -153,21 +153,21 @@ echo "$CNTLM_GIT"
 
 cat >$CNTLM_GIT <<EOF
 [user]
-	name = $name
-	email = $email
+	name = $NAME
+	email = $EMAIL
 [http]
 	proxy = http://127.0.0.1:$CNTLM_HTTP_LISTEN_PORT
 [https]
 	proxy = https://127.0.0.1:$CNTLM_HTTP_LISTEN_PORT
 EOF
 
-TUNNEL_GIT="$BASE_CONF/gitconfig-proxy"
+TUNNEL_GIT="$BASE_CONF/gitconfig-tunnel"
 echo "$TUNNEL_GIT"
 
 cat >$TUNNEL_GIT <<EOF
 [user]
-	name = $name
-	email = $email
+	name = $NAME
+	email = $EMAIL
 [http]
 	proxy = http://127.0.0.1:$TUNNEL_HTTP_LISTEN_PORT
 [https]
@@ -180,8 +180,8 @@ echo "$NO_PROXY_GIT"
 
 cat >$NO_PROXY_GIT <<EOF
 [user]
-	name = $name
-	email = $email
+	name = $NAME
+	email = $EMAIL
 EOF
 
 
@@ -237,10 +237,11 @@ export all_proxy=http://127.0.0.1:$SOCKS_LISTEN_PORT
 EOF
 
 SYSTEM_COPY="cp -rf"
+SYSTEM_DEL="rm -rf"
 
 SYSTEM_CNTLM_CONF="/etc/cntlm.conf"
 
-SYSTEM_CNTLM_LOG="/tmp/cntlm_on.log"
+SYSTEM_CNTLM_LOG="/tmp/cntlm.log"
 
 SYSTEM_CNTLM_APT="/etc/apt/apt.conf.d/99_proxy"
 
@@ -285,7 +286,7 @@ echo "$SYSTEM_CNTLM_GIT"
 $SYSTEM_COPY $CNTLM_NPM $SYSTEM_CNTLM_NPM
 echo "$SYSTEM_CNTLM_NPM"
 
-echo "
+
 echo "Load global proxy terminal settings"
 source $CNTLM_TERMINAL
 
@@ -320,7 +321,6 @@ echo "$SYSTEM_CNTLM_GIT"
 $SYSTEM_COPY $TUNNEL_NPM $SYSTEM_CNTLM_NPM
 echo "$SYSTEM_CNTLM_NPM"
 
-echo "
 echo "Load global proxy terminal settings"
 source $TUNNEL_TERMINAL
 
@@ -356,7 +356,7 @@ $SYSTEM_COPY $TUNNEL_NPM $SYSTEM_CNTLM_NPM
 echo "$SYSTEM_CNTLM_NPM"
 
 echo "Load global proxy terminal settings"
-source $TUNNEL_TERMINAL
+source $SOCKS5_TERMINAL
 
 EOF
 
@@ -380,30 +380,43 @@ echo "$SYSTEM_CNTLM_NPM"
 
 EOF
 
-## Remove proxy files
-cat >"$bin/cntlm_off" <<EOF
+echo "===Write clean_proxy==="
+
+CLEAN_PROXY="$BASE_CONF/clean_proxy"
+echo "$CLEAN_PROXY"
+cat >"$CLEAN_PROXY" <<EOF
 #!/bin/bash
-echo "Creating cntlm_off desconnection"
+echo "Remove configuration files"
 
-sudo rm -rf /etc/cntlm.conf
-sudo service cntlm stop >> /tmp/cntlm_off.log
+sudo $SYSTEM_DEL $SYSTEM_CNTLM_CONF
+sudo service cntlm stop >> $SYSTEM_CNTLM_LOG
+echo "$SYSTEM_CNTLM_CONF"
+cat "$SYSTEM_CNTLM_LOG"
 
-sudo rm -rf /etc/apt/apt.conf.d/99_proxy
-rm -rf /home/$USER/.curlrc
+sudo $SYSTEM_DEL $SYSTEM_CNTLM_APT
+echo "$SYSTEM_CNTLM_APT"
 
-rm -rf $CNTLM_NPM /home/$USER/.npmrc
+$SYSTEM_DEL $SYSTEM_CNTLM_PIP
+echo "$SYSTEM_CNTLM_PIP"
 
-rm -rf /home/$USER/.gitconfig
-cp -rf $NO_PROXY_GIT /home/$USER/.gitconfig
+$SYSTEM_DEL $SYSTEM_CNTLM_CURL
+echo "$SYSTEM_CNTLM_CURL"
 
-rm -rf /home/$USER/.config/pip
+$SYSTEM_COPY $NO_PROXY_GIT $SYSTEM_CNTLM_GIT
+echo "$SYSTEM_CNTLM_GIT"
 
-rm -rf  /home/$USER/.bashrc
-mv /home/$USER/.bashrc.bak /home/$USER/.bashrc
+$SYSTEM_DEL $SYSTEM_CNTLM_NPM
+echo "$SYSTEM_CNTLM_NPM"
 
-echo "cntlm_off finished successfully"
+export all_proxy=""
+echo "clean terminal proxy"
+
 EOF
 
+
+
+
+exit
 sudo chmod +x $bin/cntlm_on
 sudo chmod +x $bin/cntlm_off
 
