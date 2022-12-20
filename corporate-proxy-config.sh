@@ -17,6 +17,7 @@ SYSTEM_PROXY_CURL="$USER_FOLDER/.curlrc"
 SYSTEM_PROXY_NPM="$USER_FOLDER/.npmrc"
 SYSTEM_PROXY_GIT="$USER_FOLDER/.gitconfig"
 SYSTEM_PROXY_PIP="$USER_FOLDER/.config/pip"
+SYSTEM_PROXY_PAC="$USER_FOLDER/proxy.pac"
 
 SYSTEM_BIN_CNTLM="$BIN_FOLDER/cntlm-on"
 SYSTEM_BIN_TUNNEL="$BIN_FOLDER/tunnel-on"
@@ -72,6 +73,15 @@ Listen		$CNTLM_HTTP_LISTEN_PORT
 Password    $PASSWORD
 EOF
 
+DIRECT_PAC="$BASE_CONF/cntlm.pac"
+echo "$DIRECT_PAC"
+cat >$DIRECT_PAC <<EOF
+ function FindProxyForURL (url, host) {
+	
+  return 'DIRECT';
+  
+ }
+EOF
 
 CNTLM_PAC="$BASE_CONF/cntlm.pac"
 echo "$CNTLM_PAC"
@@ -97,6 +107,15 @@ cat >$TUNNEL_PAC <<EOF
   
  }
 EOF
+
+SOCKS5_PAC="$BASE_CONF/socks5.pac"
+echo "$TUNNEL_PAC"
+cat >$TUNNEL_PAC <<EOF
+ function FindProxyForURL (url, host) {
+  return 'PROXY 127.0.0.1:$TUNNEL_SOCKS_LISTEN_PORT; DIRECT'; 
+ }
+EOF
+
 
 CNTLM_APT="$BASE_CONF/apt-proxy"
 echo "$CNTLM_APT"
@@ -273,8 +292,8 @@ echo "$SYSTEM_CNTLM_CONF"
 cat "$SYSTEM_CNTLM_LOG"
 
 echo ""
-echo "$CNTLM_PAC"
-cat "$CNTLM_PAC"
+sudo $SYSTEM_COPY $CNTLM_PAC $SYSTEM_PROXY_PAC
+echo "$SYSTEM_PROXY_PAC"
 echo ""
 
 sudo $SYSTEM_COPY $CNTLM_APT $SYSTEM_PROXY_APT
@@ -312,8 +331,8 @@ cat >"$TUNNEL_ON" <<EOF
 echo "Copy configuration files"
 
 echo ""
-echo "$TUNNEL_PAC"
-cat "$TUNNEL_PAC"
+sudo $SYSTEM_COPY $TUNNEL_PAC $SYSTEM_PROXY_PAC
+echo "$SYSTEM_PROXY_PAC"
 echo ""
 
 sudo $SYSTEM_COPY $TUNNEL_APT $SYSTEM_PROXY_APT
@@ -350,9 +369,10 @@ cat >"$SOCKS5_ON" <<EOF
 echo "Copy  configuration files"
 
 echo ""
-echo "$TUNNEL_PAC"
-cat "$TUNNEL_PAC"
+sudo $SYSTEM_COPY $TUNNEL_PAC $SYSTEM_PROXY_PAC
+echo "$SYSTEM_PROXY_PAC"
 echo ""
+
 
 sudo $SYSTEM_COPY $SOCKS_APT $SYSTEM_PROXY_APT
 echo "$SYSTEM_PROXY_APT"
@@ -387,6 +407,11 @@ cat >"$NEXUS_ON" <<EOF
 #!/bin/bash
 echo "Copy  configuration files"
 
+echo ""
+sudo $SYSTEM_COPY $DIRECT_PAC $SYSTEM_PROXY_PAC
+echo "$SYSTEM_PROXY_PAC"
+echo ""
+
 $SYSTEM_COPY $NEXUS_PIP $SYSTEM_PROXY_PIP
 echo "$SYSTEM_PROXY_PIP"
 
@@ -414,6 +439,11 @@ sudo $SYSTEM_DEL $SYSTEM_CNTLM_CONF
 sudo service cntlm stop >> $SYSTEM_CNTLM_LOG
 echo "$SYSTEM_CNTLM_CONF"
 cat "$SYSTEM_CNTLM_LOG"
+
+echo ""
+sudo $SYSTEM_COPY $DIRECT_PAC $SYSTEM_PROXY_PAC
+echo "$SYSTEM_PROXY_PAC"
+echo ""
 
 sudo $SYSTEM_DEL $SYSTEM_PROXY_APT
 echo "$SYSTEM_PROXY_APT"
