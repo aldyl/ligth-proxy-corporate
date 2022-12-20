@@ -383,9 +383,9 @@ EOF
 
 }
 
+write_socks5(){
 
 echo "===Write socks5_on==="
-
 
 echo "$SOCKS5_ON"
 cat >"$SOCKS5_ON" <<EOF
@@ -421,6 +421,8 @@ bin_proxy_off=$(command -v proxy-off)
 [ "\$bin_proxy_off" != "" ] && proxy-off
 
 EOF
+
+}
 
 
 echo "===Write nexus_on==="
@@ -532,4 +534,5 @@ set_terminal
 echo "===Write programs==="
 write_cntlm
 write_tunnel
+write_socks5
 exit
