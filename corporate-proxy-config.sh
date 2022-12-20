@@ -64,7 +64,6 @@ cat >$CNTLM_PAC <<EOF
  }
 EOF
 
-
 CNTLM_APT="$BASE_CONF/apt-proxy"
 echo "$CNTLM_APT"
 
@@ -174,47 +173,54 @@ export no_proxy="$NO_PROXY_LIST"
 export all_proxy=http://127.0.0.1:$SOCKS_LISTEN_PORT
 EOF
 
-exit
+SYSTEM_COPY="cp -rf"
 
-## Make logic
-bin="/home/$USER/bin"
-mkdir -p $bin
+SYSTEM_CNTLM_CONF="/etc/cntlm.conf"
 
-## Copy proxy files
-cat >"$bin/cntlm_on" <<EOF
+SYSTEM_CNTLM_LOG="/tmp/cntlm_on.log"
 
+SYSTEM_CNTLM_APT="/etc/apt/apt.conf.d/99_proxy"
+
+SYSTEM_CNTLM_CURL="/home/$USER/.curlrc"
+
+SYSTEM_CNTLM_NPM="/home/$USER/.npmrc"
+
+SYSTEM_CNTLM_GIT="/home/$USER/.gitconfig"
+
+SYSTEM_CNTLM_PIP="/home/$USER/.config/pip"
+
+echo "===Write cntlm_on==="
+
+CNTLM_ON="$BASE_CONF/cntlm_on"
+echo "$CNTLM_ON"
+cat >"$CNTLM_ON" <<EOF
 #!/bin/bash
+echo "Copy cntlm configuration files"
 
-echo "Creating cntlm_on connection"
+sudo $SYSTEM_COPY $CNTLM_CONFIG $SYSTEM_CNTLM_CONF
+sudo service cntlm restart >> $SYSTEM_CNTLM_LOG
+echo "$SYSTEM_CNTLM_CONF"
+cat "$SYSTEM_CNTLM_LOG"
 
-sudo cp -rf $CNTLM_CONFIG /etc/cntlm.conf
-sudo service cntlm restart >> /tmp/cntlm_on.log
+sudo $SYSTEM_COPY $CNTLM_APT $SYSTEM_CNTLM_APT
+echo "$SYSTEM_CNTLM_APT"
 
-sudo cp -rf $CNTLM_APT /etc/apt/apt.conf.d/99_proxy
-cp -rf $CNTLM_CURL /home/$USER/.curlrc
+$SYSTEM_COPY $CNTLM_CURL $SYSTEM_CNTLM_CURL
+echo "$SYSTEM_CNTLM_CURL"
 
-echo "Write [npm|nexus]"
-read NPM_NEXUS
-[ \$NPM_NEXUS = 'npm' ] && cp -rf $CNTLM_NPM /home/$USER/.npmrc
-[ \$NPM_NEXUS = 'nexus' ] && cp -rf $NEXUS_NPM /home/$USER/.npmrc
+$SYSTEM_COPY $CNTLM_NPM $SYSTEM_CNTLM_NPM
+echo "$SYSTEM_CNTLM_NPM"
 
-cp -rf $CNTLM_GIT /home/$USER/.gitconfig
+$SYSTEM_COPY $CNTLM_GIT $SYSTEM_CNTLM_GIT
+echo "$SYSTEM_CNTLM_GIT"
 
-cp -rf $CNTLM_PIP /home/$USER/.config/pip
+$SYSTEM_COPY $CNTLM_PIP $SYSTEM_CNTLM_PIP
+echo "$SYSTEM_CNTLM_PIP"
 
-cp -rf  /home/$USER/.bashrc /home/$USER/.bashrc.bak
-
-## Proxy auto configuration settings | TERMINAL
-cat >> /home/$USER/.bashrc <<EOFa
-export http_proxy=http://127.0.0.1:$CNTLM_LISTEN_PORT
-export https_proxy=https://127.0.0.1:$CNTLM_LISTEN_PORT
-export ftp_proxy=\$http_proxy
-export no_proxy="$NO_PROXY_LIST"
-export all_proxy=https://127.0.0.1:$CNTLM_LISTEN_PORT
-EOFa
-
-echo "cntlm_on ready"
+echo "Load global terminal settings"
+source $CNTLM_TERMINAL
 EOF
+
 
 ## Remove proxy files
 cat >"$bin/cntlm_off" <<EOF
@@ -247,3 +253,7 @@ echo "Helper
 
 cntlm_on || cntlm_off
 "
+
+## Make logic
+bin="/home/$USER/bin"
+mkdir -p $bin
