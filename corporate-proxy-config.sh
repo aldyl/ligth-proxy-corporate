@@ -298,7 +298,7 @@ TUNNEL_ON="$BASE_CONF/tunnel_on"
 echo "$TUNNEL_ON"
 cat >"$TUNNEL_ON" <<EOF
 #!/bin/bash
-echo "Copy cntlm configuration files"
+echo "Copy configuration files"
 
 echo ""
 echo "$TUNNEL_PAC"
@@ -326,6 +326,59 @@ source $TUNNEL_TERMINAL
 
 EOF
 
+
+echo "===Write socks5_on==="
+
+SOCKS5_ON="$BASE_CONF/socks5_on"
+echo "$SOCKS5_ON"
+cat >"$SOCKS5_ON" <<EOF
+#!/bin/bash
+echo "Copy  configuration files"
+
+echo ""
+echo "$TUNNEL_PAC"
+cat "$TUNNEL_PAC"
+echo ""
+
+sudo $SYSTEM_COPY $SOCKS_APT $SYSTEM_CNTLM_APT
+echo "$SYSTEM_CNTLM_APT"
+
+$SYSTEM_COPY $TUNNEL_PIP $SYSTEM_CNTLM_PIP
+echo "$SYSTEM_CNTLM_PIP"
+
+$SYSTEM_COPY $TUNNEL_CURL $SYSTEM_CNTLM_CURL
+echo "$SYSTEM_CNTLM_CURL"
+
+$SYSTEM_COPY $TUNNEL_GIT $SYSTEM_CNTLM_GIT
+echo "$SYSTEM_CNTLM_GIT"
+
+$SYSTEM_COPY $TUNNEL_NPM $SYSTEM_CNTLM_NPM
+echo "$SYSTEM_CNTLM_NPM"
+
+echo "Load global proxy terminal settings"
+source $TUNNEL_TERMINAL
+
+EOF
+
+
+echo "===Write nexus_on==="
+
+NEXUS_ON="$BASE_CONF/nexus_on"
+echo "$NEXUS_ON"
+cat >"$NEXUS_ON" <<EOF
+#!/bin/bash
+echo "Copy  configuration files"
+
+$SYSTEM_COPY $NEXUS_PIP $SYSTEM_CNTLM_PIP
+echo "$SYSTEM_CNTLM_PIP"
+
+$SYSTEM_COPY $NO_PROXY_GIT $SYSTEM_CNTLM_GIT
+echo "$SYSTEM_CNTLM_GIT"
+
+$SYSTEM_COPY $NEXUS_NPM $SYSTEM_CNTLM_NPM
+echo "$SYSTEM_CNTLM_NPM"
+
+EOF
 
 ## Remove proxy files
 cat >"$bin/cntlm_off" <<EOF
