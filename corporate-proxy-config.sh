@@ -205,24 +205,23 @@ EOF
 
 }
 
-
+set_curl(){
 
 echo  "$CNTLM_CURL"
-
 cat >$CNTLM_CURL <<EOF
 proxy=http://127.0.0.1:$CNTLM_HTTP_LISTEN_PORT
 EOF
 
-
 echo  "$TUNNEL_CURL"
-
 cat >$TUNNEL_CURL <<EOF
 proxy=http://127.0.0.1:$TUNNEL_HTTP_LISTEN_PORT
 EOF
 
+}
+
+set_git(){
 
 echo "$CNTLM_GIT"
-
 cat >$CNTLM_GIT <<EOF
 [user]
 	name = $NAME
@@ -233,9 +232,7 @@ cat >$CNTLM_GIT <<EOF
 	proxy = https://127.0.0.1:$CNTLM_HTTP_LISTEN_PORT
 EOF
 
-
 echo "$TUNNEL_GIT"
-
 cat >$TUNNEL_GIT <<EOF
 [user]
 	name = $NAME
@@ -246,17 +243,14 @@ cat >$TUNNEL_GIT <<EOF
 	proxy = https://127.0.0.1:$TUNNEL_HTTP_LISTEN_PORT
 EOF
 
-
-
 echo "$NO_PROXY_GIT"
-
 cat >$NO_PROXY_GIT <<EOF
 [user]
 	name = $NAME
 	email = $EMAIL
 EOF
 
-
+}
 
 echo "$CNTLM_NPM"
 
@@ -532,4 +526,6 @@ set_cntlm
 set_proxy_pack
 set_apt
 set_pip
+set_curl
+set_git
 exit
