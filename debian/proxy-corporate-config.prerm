@@ -1,4 +1,0 @@
-#!/bin/bash
-
-[ "$1" == "remove" || "$1" == "purge"  ] && proxy-off || true
-
